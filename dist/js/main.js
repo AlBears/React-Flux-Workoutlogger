@@ -20058,7 +20058,7 @@ var AppActions = {
 }
 
 module.exports = AppActions;
-},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170}],167:[function(require,module,exports){
+},{"../constants/AppConstants":171,"../dispatcher/AppDispatcher":172}],167:[function(require,module,exports){
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
@@ -20110,11 +20110,12 @@ var AddForm = React.createClass({displayName: "AddForm",
 
 module.exports = AddForm;
 
-},{"../actions/AppActions":166,"../stores/AppStore":172,"react":163,"uuid":165}],168:[function(require,module,exports){
+},{"../actions/AppActions":166,"../stores/AppStore":174,"react":163,"uuid":165}],168:[function(require,module,exports){
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 var AddForm = require('./AddForm.js');
+var Workouts = require('./Workouts.js');
 
 function getAppState(){
 	return {
@@ -20155,7 +20156,7 @@ var App = React.createClass({displayName: "App",
 				React.createElement("br", null), 
 				form, 
 				React.createElement("br", null), 
-				"WORKOUTS", 
+				React.createElement(Workouts, {workouts: this.state.workouts}), 
 				React.createElement("br", null)
 			)
 		);
@@ -20168,13 +20169,54 @@ var App = React.createClass({displayName: "App",
 });
 
 module.exports = App;
-},{"../actions/AppActions":166,"../stores/AppStore":172,"./AddForm.js":167,"react":163}],169:[function(require,module,exports){
+},{"../actions/AppActions":166,"../stores/AppStore":174,"./AddForm.js":167,"./Workouts.js":170,"react":163}],169:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+var uuid = require('uuid');
+
+
+var Workouts = React.createClass({displayName: "Workouts",
+	render: function(){
+    var { type, minutes, miles } = this.props.workout;
+    return (
+      miles ?
+      React.createElement("li", {className: "list-group-item"}, type, " ", minutes, " Minutes ", miles, " Miles"):
+      React.createElement("li", {className: "list-group-item"}, type, " ", minutes, " Minutes")
+    );
+	}
+});
+module.exports = Workouts;
+
+},{"../actions/AppActions":166,"../stores/AppStore":174,"react":163,"uuid":165}],170:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+var Workout = require('./Workout.js');
+
+var Workouts = React.createClass({displayName: "Workouts",
+	render: function(){
+    var { workouts } = this.props;
+    return (
+      React.createElement("ul", {className: "list-group"}, 
+        workouts.map((workout, i) => {
+          return (
+            React.createElement(Workout, {workout: workout, key: i})
+          );
+        })
+      )
+    );
+	}
+});
+module.exports = Workouts;
+
+},{"../actions/AppActions":166,"../stores/AppStore":174,"./Workout.js":169,"react":163}],171:[function(require,module,exports){
 module.exports = {
   SHOW_FORM: 'SHOW_FORM',
   ADD_WORKOUT: 'ADD_WORKOUT',
   RECEIVE_WORKOUTS: 'RECEIVE_WORKOUTS'
 }
-},{}],170:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
 
@@ -20190,7 +20232,7 @@ var AppDispatcher = assign(new Dispatcher(),{
 
 module.exports = AppDispatcher;
 
-},{"flux":3,"object-assign":6}],171:[function(require,module,exports){
+},{"flux":3,"object-assign":6}],173:[function(require,module,exports){
 var App = require('./components/App');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -20202,7 +20244,7 @@ ReactDOM.render(
 	React.createElement(App, null),
 	document.getElementById('app')
 );
-},{"./components/App":168,"./utils/appAPI.js":174,"react":163,"react-dom":7}],172:[function(require,module,exports){
+},{"./components/App":168,"./utils/appAPI.js":176,"react":163,"react-dom":7}],174:[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
@@ -20266,42 +20308,36 @@ AppDispatcher.register(function(payload){
 });
 
 module.exports = AppStore;
-},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170,"../utils/AppAPI.js":173,"events":1,"object-assign":6}],173:[function(require,module,exports){
+},{"../constants/AppConstants":171,"../dispatcher/AppDispatcher":172,"../utils/AppAPI.js":175,"events":1,"object-assign":6}],175:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
 module.exports = {
 	addWorkout: function(workout){
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
-		if(workouts){
-			workouts.push(workout);
-		} else {
-			workouts = [];
-			workouts.push(workout);
-		}
+		workouts ? workouts : workouts = [];
+		workouts.push(workout);
 		localStorage.setItem('workouts', JSON.stringify(workouts));
 	},
 	getWorkouts: function(){
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
+		workouts ? workouts : workouts = [];
 		AppActions.receiveWorkouts(workouts);
 	}
 }
-},{"../actions/AppActions":166}],174:[function(require,module,exports){
+},{"../actions/AppActions":166}],176:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
 module.exports = {
 	addWorkout: function(workout){
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
-		if(workouts){
-			workouts.push(workout);
-		} else {
-			workouts = [];
-			workouts.push(workout);
-		}
+		workouts ? workouts : workouts = [];
+		workouts.push(workout);
 		localStorage.setItem('workouts', JSON.stringify(workouts));
 	},
 	getWorkouts: function(){
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
+		workouts ? workouts : workouts = [];
 		AppActions.receiveWorkouts(workouts);
 	}
 }
-},{"../actions/AppActions":166}]},{},[171]);
+},{"../actions/AppActions":166}]},{},[173]);
