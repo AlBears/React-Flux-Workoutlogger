@@ -20054,6 +20054,12 @@ var AppActions = {
 			actionType: AppConstants.RECEIVE_WORKOUTS,
 			workouts: workouts
 		});
+	},
+	deleteWorkout: function(id){
+		AppDispatcher.handleViewAction({
+			actionType: AppConstants.DELETE_WORKOUT,
+			id: id
+		});
 	}
 }
 
@@ -20176,17 +20182,32 @@ var AppStore = require('../stores/AppStore');
 var uuid = require('uuid');
 
 
-var Workouts = React.createClass({displayName: "Workouts",
+var Workout = React.createClass({displayName: "Workout",
 	render: function(){
-    var { type, minutes, miles } = this.props.workout;
+    var { type, minutes, miles, id } = this.props.workout;
     return (
+
       miles ?
-      React.createElement("li", {className: "list-group-item"}, type, " ", minutes, " Minutes ", miles, " Miles"):
-      React.createElement("li", {className: "list-group-item"}, type, " ", minutes, " Minutes")
+
+      React.createElement("li", {onClick: this.onDelete.bind(this, id), 
+      className: "list-group-item"}, 
+      React.createElement("a", {href: "#", "data-toggle": "tooltip", title: "Delete?"}, 
+      type, " - ", ' ', 
+      minutes, " Minutes | ", miles, " Miles")) :
+
+      React.createElement("li", {onClick: this.onDelete.bind(this, id), 
+      className: "list-group-item"}, 
+      React.createElement("a", {href: "#", "data-toggle": "tooltip", title: "Delete?"}, 
+      type, " - ", ' ', 
+      minutes, " Minutes"))
     );
-	}
+	},
+  onDelete: function(id){
+    if(confirm('Are you sure you want to remove workout?'))
+    AppActions.deleteWorkout(id);
+  }
 });
-module.exports = Workouts;
+module.exports = Workout;
 
 },{"../actions/AppActions":166,"../stores/AppStore":174,"react":163,"uuid":165}],170:[function(require,module,exports){
 var React = require('react');
@@ -20214,7 +20235,8 @@ module.exports = Workouts;
 module.exports = {
   SHOW_FORM: 'SHOW_FORM',
   ADD_WORKOUT: 'ADD_WORKOUT',
-  RECEIVE_WORKOUTS: 'RECEIVE_WORKOUTS'
+  RECEIVE_WORKOUTS: 'RECEIVE_WORKOUTS',
+  DELETE_WORKOUT: 'DELETE_WORKOUT'
 }
 },{}],172:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
@@ -20272,6 +20294,9 @@ var AppStore = assign({}, EventEmitter.prototype, {
 	addWorkout: function(workout){
 		_workouts.push(workout);
 	},
+	deleteWorkout: function(id){
+		_workouts =_workouts.filter((workout) => {return workout.id !== id;});
+	},
 	getWorkouts: function(){
 		return _workouts;
 	},
@@ -20302,6 +20327,12 @@ AppDispatcher.register(function(payload){
 			AppStore.receiveWorkouts(action.workouts);
 			AppStore.emit(CHANGE_EVENT);
 			break;
+
+		case AppConstants.DELETE_WORKOUT:
+			AppStore.deleteWorkout(action.id);
+			AppAPI.deleteWorkout(action.id);
+			AppStore.emit(CHANGE_EVENT);
+			break;
 		}
 
 	return true;
@@ -20322,6 +20353,11 @@ module.exports = {
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
 		workouts ? workouts : workouts = [];
 		AppActions.receiveWorkouts(workouts);
+	},
+	deleteWorkout: function(id){
+		var workouts = JSON.parse(localStorage.getItem('workouts'));
+		workouts = workouts.filter((workout) => {return workout.id !== id;});
+		localStorage.setItem('workouts', JSON.stringify(workouts));
 	}
 }
 },{"../actions/AppActions":166}],176:[function(require,module,exports){
@@ -20338,6 +20374,11 @@ module.exports = {
 		var workouts = JSON.parse(localStorage.getItem('workouts'));
 		workouts ? workouts : workouts = [];
 		AppActions.receiveWorkouts(workouts);
+	},
+	deleteWorkout: function(id){
+		var workouts = JSON.parse(localStorage.getItem('workouts'));
+		workouts = workouts.filter((workout) => {return workout.id !== id;});
+		localStorage.setItem('workouts', JSON.stringify(workouts));
 	}
 }
 },{"../actions/AppActions":166}]},{},[173]);

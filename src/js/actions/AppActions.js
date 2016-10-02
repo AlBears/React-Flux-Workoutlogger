@@ -18,6 +18,12 @@ var AppActions = {
 			actionType: AppConstants.RECEIVE_WORKOUTS,
 			workouts: workouts
 		});
+	},
+	deleteWorkout: function(id){
+		AppDispatcher.handleViewAction({
+			actionType: AppConstants.DELETE_WORKOUT,
+			id: id
+		});
 	}
 }
 

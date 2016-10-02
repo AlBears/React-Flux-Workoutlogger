@@ -1,0 +1,6 @@
+.list-group-item {
+  cursor: pointer;
+}
+a:hover {
+  text-decoration: none;
+}
